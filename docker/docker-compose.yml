@@ -1,0 +1,78 @@
+# Isolated test lab (WP2). Run on a Linux host or VM:  docker compose -f docker/docker-compose.yml up -d --build
+#
+#   data-init  one-shot: downloads models/datasets, builds the ChromaDB collection, then exits
+#   ai-app     ChromaDB server (the legitimate writer of /data/chroma)
+#   agent      fimagent: watches /data read-only, keeps its state in agent-state
+#   attacker   a compromised process with write access to /data
+name: fim-lab
+
+services:
+  data-init:
+    build:
+      context: ..
+      dockerfile: docker/data-init.Dockerfile
+    volumes:
+      - ai-data:/data
+    environment:
+      MODELS: ${MODELS:-gpt2 tinyllama-q4 tinyllama-q8}
+      SYNTHETIC_SIZES: ${SYNTHETIC_SIZES:-100M 1G 4G}
+      SQUAD_LIMIT: ${SQUAD_LIMIT:-0}       # 0 = every unique paragraph
+      CHROMA_UID: "1000"
+    networks: [egress]                     # the only service with internet access
+
+  ai-app:
+    build:
+      context: ..
+      dockerfile: docker/ai-app.Dockerfile
+    volumes:
+      - ai-data:/data
+    networks: [lab]
+    depends_on:
+      data-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  agent:
+    build:
+      context: ..
+      dockerfile: docker/agent.Dockerfile
+    volumes:
+      - ai-data:/data:ro                                   # SR-03: read-only view of monitored assets
+      - agent-state:/var/lib/fimagent                      # SR-02: baseline and key, agent only
+      - ../config/agent.docker.yaml:/etc/fimagent/config.yaml:ro
+    environment:
+      FIM_CONFIG: /etc/fimagent/config.yaml
+    cap_drop: [ALL]
+    cap_add: [SYS_ADMIN, DAC_READ_SEARCH]                  # SR-04: fanotify, read any monitored file; no privileged mode
+    pid: host                                              # map PIDs of writers in other containers (FR-10)
+    security_opt: ["no-new-privileges:true"]
+    networks: [lab]
+    depends_on:
+      data-init:
+        condition: service_completed_successfully
+    restart: unless-stopped                                # NFR-10: restart after a crash
+    healthcheck:
+      test: ["CMD", "fimagent", "status"]
+      interval: 60s
+      timeout: 10s
+
+  attacker:
+    build:
+      context: ..
+      dockerfile: docker/attacker.Dockerfile
+    volumes:
+      - ai-data:/data                                      # threat model: write access to the assets
+      - ../simulations:/simulations:ro
+    networks: [lab]
+    depends_on:
+      data-init:
+        condition: service_completed_successfully
+
+networks:
+  lab:
+    internal: true                                         # no route to the internet
+  egress: {}
+
+volumes:
+  ai-data:
+  agent-state:
