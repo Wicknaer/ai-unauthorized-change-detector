@@ -1,0 +1,32 @@
+# Large model and data files (GitHub blocks files over 100 MiB); fetched by data/ scripts
+*.safetensors
+*.gguf
+*.pt
+*.bin
+*.parquet
+*.tar.gz
+ai-data/
+
+# Agent runtime state: HMAC key, baseline, logs
+/state/
+examples/demo/state/
+*.jsonl.bak
+hmac.key
+
+# Build output
+agent/fimagent
+agent/fimagent.exe
+examples/demo/bin/
+examples/demo/alerts.csv
+dist/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
