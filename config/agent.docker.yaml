@@ -1,0 +1,41 @@
+# fimagent configuration used inside the Docker lab (docker/docker-compose.yml).
+# The ai-data volume is mounted read-only at /data; agent-state is private to the agent.
+agent:
+  state_dir: /var/lib/fimagent            # baseline, HMAC key, maintenance flag (agent-state volume, SR-02)
+  log_file: /var/lib/fimagent/alerts.jsonl
+  scan_interval: 5m                       # FR-08: periodic full rescan
+  debounce: 500ms                         # FR-09: coalesce bursts on one file
+  heartbeat_interval: 60s                 # SR-05
+  hash_chunk_mb: 4                        # FR-04: read size, memory use is independent of file size
+
+watch:
+  - name: models
+    path: /data/models
+    asset: model                          # CRITICAL
+    patterns: ["*.safetensors", "*.gguf", "*.pt", "*.bin"]
+  - name: synthetic
+    path: /data/synthetic
+    asset: model
+    patterns: ["*.bin"]
+  - name: datasets
+    path: /data/datasets
+    asset: dataset                        # HIGH
+    patterns: ["*.csv", "*.jsonl", "*.parquet"]
+  - name: chroma
+    path: /data/chroma
+    asset: vectordb                       # HIGH
+
+# SQLite temporary files written by ChromaDB during normal operation (see docs/exclusions.md).
+exclude:
+  - "*-journal"
+  - "*-wal"
+  - "*-shm"
+  - "*.lock"
+  - "*.tmp"
+
+# Processes allowed to write. Matching needs process attribution (FR-10, fanotify),
+# which is the next milestone; until then these entries are parsed and validated only.
+whitelist:
+  - name: chromadb-server
+    comm: chroma
+    paths: [/data/chroma]
