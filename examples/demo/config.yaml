@@ -1,0 +1,22 @@
+# Local demo configuration. Paths are relative to this file.
+# Create the sample data first: python make_sample_data.py
+agent:
+  state_dir: state
+  scan_interval: 1m
+  debounce: 500ms
+  heartbeat_interval: 30s
+
+watch:
+  - name: models
+    path: ai-data/models
+    asset: model
+    patterns: ["*.safetensors", "*.gguf", "*.pt", "*.bin"]
+  - name: datasets
+    path: ai-data/datasets
+    asset: dataset
+    patterns: ["*.csv", "*.jsonl", "*.parquet"]
+  - name: chroma
+    path: ai-data/chroma
+    asset: vectordb
+
+exclude: ["*-journal", "*-wal", "*-shm"]
