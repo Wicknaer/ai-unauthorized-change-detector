@@ -37,6 +37,8 @@ const (
 	DefaultDebounce          = 500 * time.Millisecond // FR-09
 	DefaultHeartbeatInterval = 60 * time.Second       // SR-05
 	DefaultChunkMB           = 4                      // FR-04
+	DefaultLogMaxMB          = 100                    // NFR-11: 5 x 100 MB
+	DefaultLogKeep           = 5
 )
 
 // Duration is a time.Duration written in YAML as "5m", "500ms", etc.
@@ -64,6 +66,8 @@ type AgentConfig struct {
 	Debounce          Duration `yaml:"debounce"`
 	HeartbeatInterval Duration `yaml:"heartbeat_interval"`
 	HashChunkMB       int      `yaml:"hash_chunk_mb"`
+	LogMaxMB          int      `yaml:"log_max_mb"` // rotate the alert log at this size (NFR-11)
+	LogKeep           int      `yaml:"log_keep"`   // files kept, including the active one
 }
 
 // WatchEntry describes a monitored directory. An empty Patterns list matches every file.
@@ -150,6 +154,12 @@ func (c *Config) applyDefaults() {
 	if c.Agent.HashChunkMB == 0 {
 		c.Agent.HashChunkMB = DefaultChunkMB
 	}
+	if c.Agent.LogMaxMB == 0 {
+		c.Agent.LogMaxMB = DefaultLogMaxMB
+	}
+	if c.Agent.LogKeep == 0 {
+		c.Agent.LogKeep = DefaultLogKeep
+	}
 	for i := range c.Watch {
 		c.Watch[i].Path = resolve(c.Watch[i].Path)
 	}
@@ -223,6 +233,12 @@ func (c *Config) validate() error {
 	}
 	if a.HashChunkMB < 1 || a.HashChunkMB > 256 {
 		add("agent.hash_chunk_mb must be between 1 and 256")
+	}
+	if a.LogMaxMB < 1 {
+		add("agent.log_max_mb must be at least 1")
+	}
+	if a.LogKeep < 2 || a.LogKeep > 100 {
+		add("agent.log_keep must be between 2 and 100")
 	}
 	// A state dir inside a monitored directory would turn every heartbeat into a change.
 	for _, w := range c.Watch {

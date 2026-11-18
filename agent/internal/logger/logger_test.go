@@ -83,3 +83,41 @@ func TestLastHashLongLines(t *testing.T) {
 		t.Fatalf("Verify = %d, %v", n, err)
 	}
 }
+
+func TestRotationKeepsChainAcrossFiles(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "alerts.jsonl")
+	l, _ := New(path, nil)
+	l.SetRotation(2000, 3) // tiny files: active + 2 rotated
+	var notified int
+	l.SetNotifier(func(Record) { notified++ })
+	for i := 0; i < 40; i++ {
+		if err := l.Write(Record{Type: TypeDetection, Message: strings.Repeat("r", 100)}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	files, _ := Segments(path)
+	if len(files) != 3 || files[0] != path+".2" || files[2] != path {
+		t.Fatalf("segments = %v", files)
+	}
+	res, err := VerifyChain(path)
+	if err != nil {
+		t.Fatalf("chain across rotated files broken: %v", err)
+	}
+	if !res.Rotated || res.Files != 3 || res.Lines >= 40 {
+		t.Errorf("result %+v: oldest history should have been rotated out", res)
+	}
+	if notified != 40 {
+		t.Errorf("notifier called %d times", notified)
+	}
+	var n int
+	ReadAll(path, func(Record) error { n++; return nil })
+	if n != res.Lines {
+		t.Errorf("ReadAll saw %d records, Verify %d", n, res.Lines)
+	}
+
+	// Deleting a rotated file in the middle is detected.
+	os.Remove(path + ".1")
+	if _, err := VerifyChain(path); err == nil {
+		t.Error("missing middle segment not detected")
+	}
+}

@@ -30,6 +30,7 @@ import (
 	"github.com/Wicknaer/ai-unauthorized-change-detector/agent/internal/decision"
 	"github.com/Wicknaer/ai-unauthorized-change-detector/agent/internal/hasher"
 	"github.com/Wicknaer/ai-unauthorized-change-detector/agent/internal/logger"
+	"github.com/Wicknaer/ai-unauthorized-change-detector/agent/internal/notify"
 	"github.com/Wicknaer/ai-unauthorized-change-detector/agent/internal/report"
 	"github.com/Wicknaer/ai-unauthorized-change-detector/agent/internal/state"
 )
@@ -120,6 +121,7 @@ func load(cfgPath string, console io.Writer) (*common, error) {
 	if err != nil {
 		return nil, err
 	}
+	log.SetRotation(int64(cfg.Agent.LogMaxMB)<<20, cfg.Agent.LogKeep)
 	return &common{cfg: cfg, st: state.Dir(cfg.Agent.StateDir), log: log}, nil
 }
 
@@ -299,6 +301,16 @@ func cmdWatch(args []string) error {
 	if err != nil {
 		return err
 	}
+	if url := os.Getenv(notify.EnvURL); url != "" {
+		min, ok := decision.ParseSeverity(os.Getenv(notify.EnvMin))
+		if !ok {
+			min = decision.Critical
+		}
+		wh := notify.NewWebhook(url, min)
+		c.log.SetNotifier(wh.Notify)
+		defer wh.Close(10 * time.Second)
+		fmt.Printf("webhook enabled for %s and above\n", min)
+	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	fmt.Printf("fimagent %s watching %s (log: %s)\n", version, strings.Join(c.cfg.Roots(), ", "), c.cfg.Agent.LogFile)
@@ -384,16 +396,20 @@ func cmdVerifyLog(args []string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	n, err := logger.Verify(c.cfg.Agent.LogFile)
+	res, err := logger.VerifyChain(c.cfg.Agent.LogFile)
 	var ce *logger.ChainError
 	if errors.As(err, &ce) {
-		fmt.Printf("log chain BROKEN after %d valid line(s): %v\n", n, ce)
+		fmt.Printf("log chain BROKEN after %d valid line(s): %v\n", res.Lines, ce)
 		return 1, nil
 	}
 	if err != nil {
 		return 0, err
 	}
-	fmt.Printf("log chain OK: %d line(s) verified\n", n)
+	note := ""
+	if res.Rotated {
+		note = " (older history was rotated out; the chain starts at the oldest kept file)"
+	}
+	fmt.Printf("log chain OK: %d line(s) in %d file(s) verified%s\n", res.Lines, res.Files, note)
 	return 0, nil
 }
 

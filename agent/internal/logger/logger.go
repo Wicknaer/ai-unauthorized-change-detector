@@ -71,9 +71,27 @@ func computeHash(r Record) (string, error) {
 }
 
 type Logger struct {
-	path    string
-	console io.Writer
-	mu      sync.Mutex
+	path     string
+	console  io.Writer
+	mu       sync.Mutex
+	maxBytes int64        // rotate when the active file would grow past this; 0 disables rotation
+	keep     int          // total number of files kept, including the active one (NFR-11)
+	notify   func(Record) // called after a record is written, e.g. the webhook (FR-16)
+}
+
+// SetRotation enables size-based rotation: alerts.jsonl -> alerts.jsonl.1 -> ... The hash
+// chain continues across files, so a removed rotated file shows up as a gap.
+func (l *Logger) SetRotation(maxBytes int64, keep int) {
+	l.mu.Lock()
+	l.maxBytes, l.keep = maxBytes, keep
+	l.mu.Unlock()
+}
+
+// SetNotifier registers a function that receives every record after it is written.
+func (l *Logger) SetNotifier(fn func(Record)) {
+	l.mu.Lock()
+	l.notify = fn
+	l.mu.Unlock()
 }
 
 // New opens (or creates) the log file. CRITICAL and HIGH records are also printed to console (FR-15).
@@ -102,7 +120,7 @@ func (l *Logger) Write(r Record) error {
 	if r.Severity == "" {
 		r.Severity = decision.Info
 	}
-	prev, err := lastHash(l.path)
+	prev, err := chainHead(l.path)
 	if err != nil {
 		return err
 	}
@@ -114,7 +132,14 @@ func (l *Logger) Write(r Record) error {
 	if err != nil {
 		return err
 	}
-	f, err := os.OpenFile(l.path, os.O_APPEND|os.O_WRONLY, 0o640)
+	if l.maxBytes > 0 {
+		if fi, err := os.Stat(l.path); err == nil && fi.Size() > 0 && fi.Size()+int64(len(line))+1 > l.maxBytes {
+			if err := rotate(l.path, l.keep); err != nil {
+				return fmt.Errorf("log rotation: %w", err)
+			}
+		}
+	}
+	f, err := os.OpenFile(l.path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o640)
 	if err != nil {
 		return err
 	}
@@ -128,6 +153,9 @@ func (l *Logger) Write(r Record) error {
 	}
 	if l.console != nil && r.Severity.Rank() >= decision.High.Rank() {
 		fmt.Fprintln(l.console, Human(r))
+	}
+	if l.notify != nil {
+		l.notify(r)
 	}
 	return nil
 }
@@ -196,43 +224,95 @@ type ChainError struct {
 
 func (e *ChainError) Error() string { return fmt.Sprintf("line %d: %s", e.Line, e.Reason) }
 
-// Verify walks the whole log and checks every line's hash and link. It returns the number of valid lines.
+// Verify walks the whole log, including rotated files, and checks every line's hash and
+// link. It returns the number of valid lines.
 func Verify(path string) (int, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return 0, err
-	}
-	defer f.Close()
-	sc := bufio.NewScanner(f)
-	sc.Buffer(make([]byte, 64<<10), 4<<20)
-	prev, n := GenesisHash, 0
-	for sc.Scan() {
-		line := bytes.TrimSpace(sc.Bytes())
-		if len(line) == 0 {
-			continue
-		}
-		var r Record
-		if err := json.Unmarshal(line, &r); err != nil {
-			return n, &ChainError{n + 1, "not valid JSON"}
-		}
-		if r.PrevHash != prev {
-			return n, &ChainError{n + 1, "prev_hash does not match the previous line (line deleted or reordered)"}
-		}
-		want, err := computeHash(r)
-		if err != nil {
-			return n, err
-		}
-		if r.Hash != want {
-			return n, &ChainError{n + 1, "hash does not match the content (line modified)"}
-		}
-		prev = r.Hash
-		n++
-	}
-	return n, sc.Err()
+	res, err := VerifyChain(path)
+	return res.Lines, err
 }
 
-// ReadAll decodes every record in the log, calling fn for each one.
+// ChainResult summarizes a verified log.
+type ChainResult struct {
+	Lines   int
+	Files   int
+	Rotated bool // the oldest kept file does not start at the genesis hash: older files were rotated out
+}
+
+// VerifyChain is Verify with details about rotation.
+func VerifyChain(path string) (ChainResult, error) {
+	var res ChainResult
+	files, err := Segments(path)
+	if err != nil {
+		return res, err
+	}
+	prev := ""
+	for _, file := range files {
+		res.Files++
+		f, err := os.Open(file)
+		if err != nil {
+			return res, err
+		}
+		sc := bufio.NewScanner(f)
+		sc.Buffer(make([]byte, 64<<10), 4<<20)
+		for sc.Scan() {
+			line := bytes.TrimSpace(sc.Bytes())
+			if len(line) == 0 {
+				continue
+			}
+			var r Record
+			if err := json.Unmarshal(line, &r); err != nil {
+				f.Close()
+				return res, &ChainError{res.Lines + 1, "not valid JSON"}
+			}
+			if prev == "" { // first line of the oldest kept file
+				prev = GenesisHash
+				// Only a rotated file may start mid-chain: its predecessors were dropped by
+				// rotation. The active file without rotated files must start at genesis, or
+				// cutting the head of the log would go unnoticed.
+				if r.PrevHash != GenesisHash && file != path {
+					prev, res.Rotated = r.PrevHash, true
+				}
+			}
+			if r.PrevHash != prev {
+				f.Close()
+				return res, &ChainError{res.Lines + 1, "prev_hash does not match the previous line (line deleted or reordered)"}
+			}
+			want, err := computeHash(r)
+			if err != nil {
+				f.Close()
+				return res, err
+			}
+			if r.Hash != want {
+				f.Close()
+				return res, &ChainError{res.Lines + 1, "hash does not match the content (line modified)"}
+			}
+			prev = r.Hash
+			res.Lines++
+		}
+		err = sc.Err()
+		f.Close()
+		if err != nil {
+			return res, err
+		}
+	}
+	return res, nil
+}
+
+// ReadAll decodes every record in the log, rotated files first, calling fn for each one.
 func ReadAll(path string, fn func(Record) error) error {
+	files, err := Segments(path)
+	if err != nil {
+		return err
+	}
+	for _, file := range files {
+		if err := readFile(file, fn); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func readFile(path string, fn func(Record) error) error {
 	f, err := os.Open(path)
 	if err != nil {
 		return err
@@ -247,7 +327,7 @@ func ReadAll(path string, fn func(Record) error) error {
 		}
 		var r Record
 		if err := json.Unmarshal(b, &r); err != nil {
-			return fmt.Errorf("line %d: %w", line, err)
+			return fmt.Errorf("%s line %d: %w", filepath.Base(path), line, err)
 		}
 		if err := fn(r); err != nil {
 			return err
