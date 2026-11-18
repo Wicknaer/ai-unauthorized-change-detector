@@ -5,7 +5,7 @@ Embeddings use Chroma's default embedding function (all-MiniLM-L6-v2).
 import argparse
 import json
 import os
-import urllib.request
+import subprocess
 
 import chromadb
 
@@ -34,7 +34,7 @@ def main() -> None:
 
     if not os.path.exists(args.cache):
         print(f"downloading {URL}")
-        urllib.request.urlretrieve(URL, args.cache)
+        subprocess.run(["curl", "-fsSL", "--retry", "3", "-o", args.cache, URL], check=True)
 
     client = chromadb.PersistentClient(path=args.path)
     col = client.get_or_create_collection("squad")

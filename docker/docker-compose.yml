@@ -18,6 +18,7 @@ services:
       SYNTHETIC_SIZES: ${SYNTHETIC_SIZES:-100M 1G 4G}
       SQUAD_LIMIT: ${SQUAD_LIMIT:-0}       # 0 = every unique paragraph
       CHROMA_UID: "1000"
+      ANONYMIZED_TELEMETRY: "False"
     networks: [egress]                     # the only service with internet access
 
   ai-app:
@@ -26,6 +27,8 @@ services:
       dockerfile: docker/ai-app.Dockerfile
     volumes:
       - ai-data:/data
+    environment:
+      ANONYMIZED_TELEMETRY: "False"   # the lab network has no internet anyway
     networks: [lab]
     depends_on:
       data-init:
@@ -42,6 +45,8 @@ services:
       - ../config/agent.docker.yaml:/etc/fimagent/config.yaml:ro
     environment:
       FIM_CONFIG: /etc/fimagent/config.yaml
+      FIM_WEBHOOK_URL: ${FIM_WEBHOOK_URL:-}                # FR-16: Slack/Discord webhook, secret (SR-08)
+      FIM_WEBHOOK_MIN: ${FIM_WEBHOOK_MIN:-CRITICAL}
     cap_drop: [ALL]
     cap_add: [SYS_ADMIN, DAC_READ_SEARCH]                  # SR-04: fanotify, read any monitored file; no privileged mode
     pid: host                                              # map PIDs of writers in other containers (FR-10)
