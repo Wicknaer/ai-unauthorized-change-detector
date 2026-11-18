@@ -1,0 +1,111 @@
+scenario,test,path,attack_ms,detected,severity,process,latency_ms,outcome
+t01:gpt2-124m.safetensors,t01,/data/models/gpt2-124m.safetensors,1795031169010,True,CRITICAL,,809.6,TP
+t01:gpt2-124m.safetensors,t01,/data/models/gpt2-124m.safetensors,1795031171169,True,CRITICAL,dd,797.6,TP
+t01:gpt2-124m.safetensors,t01,/data/models/gpt2-124m.safetensors,1795031173376,True,CRITICAL,dd,797.4,TP
+t01:gpt2-124m.safetensors,t01,/data/models/gpt2-124m.safetensors,1795031175562,True,CRITICAL,dd,805.5,TP
+t01:gpt2-124m.safetensors,t01,/data/models/gpt2-124m.safetensors,1795031177727,True,CRITICAL,dd,807.8,TP
+t01:gpt2-124m.safetensors,t01,/data/models/gpt2-124m.safetensors,1795031179934,True,CRITICAL,dd,802.1,TP
+t01:gpt2-124m.safetensors,t01,/data/models/gpt2-124m.safetensors,1795031182083,True,CRITICAL,dd,799.7,TP
+t01:gpt2-124m.safetensors,t01,/data/models/gpt2-124m.safetensors,1795031184249,True,CRITICAL,dd,797.6,TP
+t01:gpt2-124m.safetensors,t01,/data/models/gpt2-124m.safetensors,1795031186403,True,CRITICAL,,796.2,TP
+t01:gpt2-124m.safetensors,t01,/data/models/gpt2-124m.safetensors,1795031188583,True,CRITICAL,dd,796.4,TP
+t01:synthetic_100m.bin,t01,/data/synthetic/synthetic_100m.bin,1795031190808,True,CRITICAL,dd,558.7,TP
+t01:synthetic_100m.bin,t01,/data/synthetic/synthetic_100m.bin,1795031192983,True,CRITICAL,,562.3,TP
+t01:synthetic_100m.bin,t01,/data/synthetic/synthetic_100m.bin,1795031195174,True,CRITICAL,dd,558.3,TP
+t01:synthetic_100m.bin,t01,/data/synthetic/synthetic_100m.bin,1795031197329,True,CRITICAL,dd,559.6,TP
+t01:synthetic_100m.bin,t01,/data/synthetic/synthetic_100m.bin,1795031199514,True,CRITICAL,dd,558.8,TP
+t01:synthetic_100m.bin,t01,/data/synthetic/synthetic_100m.bin,1795031201685,True,CRITICAL,dd,558.0,TP
+t01:synthetic_100m.bin,t01,/data/synthetic/synthetic_100m.bin,1795031203853,True,CRITICAL,,557.5,TP
+t01:synthetic_100m.bin,t01,/data/synthetic/synthetic_100m.bin,1795031206009,True,CRITICAL,dd,557.4,TP
+t01:synthetic_100m.bin,t01,/data/synthetic/synthetic_100m.bin,1795031208193,True,CRITICAL,dd,558.2,TP
+t01:synthetic_100m.bin,t01,/data/synthetic/synthetic_100m.bin,1795031210345,True,CRITICAL,dd,558.1,TP
+t01:synthetic_1g.bin,t01,/data/synthetic/synthetic_1g.bin,1795031212583,True,CRITICAL,dd,1101.8,TP
+t01:synthetic_1g.bin,t01,/data/synthetic/synthetic_1g.bin,1795031216304,True,CRITICAL,,1079.8,TP
+t01:synthetic_1g.bin,t01,/data/synthetic/synthetic_1g.bin,1795031220001,True,CRITICAL,dd,1079.0,TP
+t01:synthetic_1g.bin,t01,/data/synthetic/synthetic_1g.bin,1795031223654,True,CRITICAL,,1076.3,TP
+t01:synthetic_1g.bin,t01,/data/synthetic/synthetic_1g.bin,1795031227352,True,CRITICAL,dd,1082.1,TP
+t01:synthetic_1g.bin,t01,/data/synthetic/synthetic_1g.bin,1795031231040,True,CRITICAL,dd,1085.6,TP
+t01:synthetic_1g.bin,t01,/data/synthetic/synthetic_1g.bin,1795031234696,True,CRITICAL,dd,1082.5,TP
+t01:synthetic_1g.bin,t01,/data/synthetic/synthetic_1g.bin,1795031238376,True,CRITICAL,dd,1087.1,TP
+t01:synthetic_1g.bin,t01,/data/synthetic/synthetic_1g.bin,1795031242076,True,CRITICAL,,1081.4,TP
+t01:synthetic_1g.bin,t01,/data/synthetic/synthetic_1g.bin,1795031245884,True,CRITICAL,dd,1088.0,TP
+t02,t02,/data/datasets/imdb_train.jsonl,1795031249611,True,HIGH,bash,526.6,TP
+t02,t02,/data/datasets/imdb_train.jsonl,1795031251795,True,HIGH,bash,519.7,TP
+t02,t02,/data/datasets/imdb_train.jsonl,1795031253970,True,HIGH,bash,520.4,TP
+t02,t02,/data/datasets/imdb_train.jsonl,1795031256128,True,HIGH,bash,527.4,TP
+t02,t02,/data/datasets/imdb_train.jsonl,1795031258317,True,HIGH,bash,527.3,TP
+t02,t02,/data/datasets/imdb_train.jsonl,1795031260493,True,HIGH,bash,520.5,TP
+t02,t02,/data/datasets/imdb_train.jsonl,1795031262653,True,HIGH,bash,520.3,TP
+t02,t02,/data/datasets/imdb_train.jsonl,1795031264813,True,HIGH,bash,524.1,TP
+t02,t02,/data/datasets/imdb_train.jsonl,1795031267011,True,HIGH,bash,527.7,TP
+t02,t02,/data/datasets/imdb_train.jsonl,1795031269274,True,HIGH,bash,522.2,TP
+t03,t03,/data/chroma/chroma.sqlite3,1795031271514,True,HIGH,sqlite3,509.0,TP
+t03,t03,/data/chroma/chroma.sqlite3,1795031273721,True,HIGH,sqlite3,508.8,TP
+t03,t03,/data/chroma/chroma.sqlite3,1795031275921,True,HIGH,sqlite3,508.6,TP
+t03,t03,/data/chroma/chroma.sqlite3,1795031278103,True,HIGH,sqlite3,507.7,TP
+t03,t03,/data/chroma/chroma.sqlite3,1795031280283,True,HIGH,sqlite3,507.9,TP
+t03,t03,/data/chroma/chroma.sqlite3,1795031282451,True,HIGH,sqlite3,509.0,TP
+t03,t03,/data/chroma/chroma.sqlite3,1795031284621,True,HIGH,sqlite3,508.0,TP
+t03,t03,/data/chroma/chroma.sqlite3,1795031286808,True,HIGH,sqlite3,508.1,TP
+t03,t03,/data/chroma/chroma.sqlite3,1795031288991,True,HIGH,sqlite3,508.3,TP
+t03,t03,/data/chroma/chroma.sqlite3,1795031291185,True,HIGH,sqlite3,508.4,TP
+t04,t04,/data/chroma/chroma.sqlite3,1795031294108,True,INFO,chroma,507.6,TN
+t04,t04,/data/chroma/chroma.sqlite3,1795031296966,True,INFO,chroma,510.4,TN
+t04,t04,/data/chroma/chroma.sqlite3,1795031299799,True,INFO,chroma,510.2,TN
+t04,t04,/data/chroma/chroma.sqlite3,1795031302705,True,INFO,chroma,507.3,TN
+t04,t04,/data/chroma/chroma.sqlite3,1795031305611,True,INFO,chroma,506.7,TN
+t04,t04,/data/chroma/chroma.sqlite3,1795031308491,True,INFO,chroma,505.8,TN
+t04,t04,/data/chroma/chroma.sqlite3,1795031311337,True,INFO,chroma,507.6,TN
+t04,t04,/data/chroma/chroma.sqlite3,1795031314199,True,INFO,chroma,520.4,TN
+t04,t04,/data/chroma/chroma.sqlite3,1795031317058,True,INFO,chroma,506.6,TN
+t04,t04,/data/chroma/chroma.sqlite3,1795031319934,True,INFO,chroma,514.5,TN
+t05,t05,/data/models/gpt2-124m.safetensors,1795031322638,True,CRITICAL,dd,777.0,TP
+t05,t05,/data/models/gpt2-124m.safetensors,1795031325233,True,CRITICAL,dd,760.8,TP
+t05,t05,/data/models/gpt2-124m.safetensors,1795031327826,True,CRITICAL,dd,763.4,TP
+t05,t05,/data/models/gpt2-124m.safetensors,1795031330470,True,CRITICAL,dd,760.6,TP
+t05,t05,/data/models/gpt2-124m.safetensors,1795031333060,True,CRITICAL,dd,760.7,TP
+t05,t05,/data/models/gpt2-124m.safetensors,1795031335618,True,CRITICAL,dd,760.7,TP
+t05,t05,/data/models/gpt2-124m.safetensors,1795031338224,True,CRITICAL,dd,755.7,TP
+t05,t05,/data/models/gpt2-124m.safetensors,1795031340773,True,CRITICAL,dd,756.8,TP
+t05,t05,/data/models/gpt2-124m.safetensors,1795031343410,True,CRITICAL,,762.1,TP
+t05,t05,/data/models/gpt2-124m.safetensors,1795031346003,True,CRITICAL,,760.9,TP
+t06,t06,/data/datasets/imdb_test.csv,1795031348250,True,HIGH,,499.6,TP
+t06,t06,/data/datasets/imdb_test.csv,1795031352640,True,HIGH,,498.3,TP
+t06,t06,/data/datasets/imdb_test.csv,1795031357009,True,HIGH,,497.5,TP
+t06,t06,/data/datasets/imdb_test.csv,1795031361366,True,HIGH,,498.4,TP
+t06,t06,/data/datasets/imdb_test.csv,1795031365753,True,HIGH,,498.8,TP
+t06,t06,/data/datasets/imdb_test.csv,1795031370212,True,HIGH,,498.6,TP
+t06,t06,/data/datasets/imdb_test.csv,1795031374586,True,HIGH,,495.7,TP
+t06,t06,/data/datasets/imdb_test.csv,1795031378966,True,HIGH,,498.8,TP
+t06,t06,/data/datasets/imdb_test.csv,1795031383298,True,HIGH,,497.8,TP
+t06,t06,/data/datasets/imdb_test.csv,1795031387691,True,HIGH,,498.1,TP
+t07,t07,/data/models/gpt2-124m.safetensors,1795031392076,True,CRITICAL,,821.8,"TP (severity CRITICAL, expected MEDIUM)"
+t07,t07,/data/models/gpt2-124m.safetensors,1795031394272,True,CRITICAL,,801.3,"TP (severity CRITICAL, expected MEDIUM)"
+t07,t07,/data/models/gpt2-124m.safetensors,1795031396476,True,CRITICAL,,806.7,"TP (severity CRITICAL, expected MEDIUM)"
+t07,t07,/data/models/gpt2-124m.safetensors,1795031398652,True,CRITICAL,,797.7,"TP (severity CRITICAL, expected MEDIUM)"
+t07,t07,/data/models/gpt2-124m.safetensors,1795031400850,True,CRITICAL,,801.5,"TP (severity CRITICAL, expected MEDIUM)"
+t07,t07,/data/models/gpt2-124m.safetensors,1795031403025,True,CRITICAL,,808.6,"TP (severity CRITICAL, expected MEDIUM)"
+t07,t07,/data/models/gpt2-124m.safetensors,1795031405210,True,CRITICAL,,811.4,"TP (severity CRITICAL, expected MEDIUM)"
+t07,t07,/data/models/gpt2-124m.safetensors,1795031407409,True,CRITICAL,,801.4,"TP (severity CRITICAL, expected MEDIUM)"
+t07,t07,/data/models/gpt2-124m.safetensors,1795031409613,True,CRITICAL,,800.4,"TP (severity CRITICAL, expected MEDIUM)"
+t07,t07,/data/models/gpt2-124m.safetensors,1795031411798,True,CRITICAL,,808.7,"TP (severity CRITICAL, expected MEDIUM)"
+t08,t08,/data/datasets/imdb_train.jsonl,1795031414075,True,HIGH,touch,520.8,TP
+t08,t08,/data/datasets/imdb_train.jsonl,1795031416321,True,HIGH,,523.2,TP
+t08,t08,/data/datasets/imdb_train.jsonl,1795031418580,True,HIGH,touch,519.4,TP
+t08,t08,/data/datasets/imdb_train.jsonl,1795031420827,True,HIGH,,519.6,TP
+t08,t08,/data/datasets/imdb_train.jsonl,1795031423062,True,HIGH,touch,520.4,TP
+t08,t08,/data/datasets/imdb_train.jsonl,1795031425334,True,HIGH,,520.2,TP
+t08,t08,/data/datasets/imdb_train.jsonl,1795031427570,True,HIGH,touch,71.4,TP
+t08,t08,/data/datasets/imdb_train.jsonl,1795031429799,True,HIGH,touch,519.7,TP
+t08,t08,/data/datasets/imdb_train.jsonl,1795031432043,True,HIGH,touch,521.7,TP
+t08,t08,/data/datasets/imdb_train.jsonl,1795031434287,True,HIGH,touch,518.9,TP
+newfile,newfile,/data/datasets/backdoor_trigger_1795031436518.jsonl,1795031436519,True,MEDIUM,bash,502.0,TP
+newfile,newfile,/data/datasets/backdoor_trigger_1795031438699.jsonl,1795031438700,True,MEDIUM,bash,501.6,TP
+newfile,newfile,/data/datasets/backdoor_trigger_1795031440915.jsonl,1795031440916,True,MEDIUM,bash,501.2,TP
+newfile,newfile,/data/datasets/backdoor_trigger_1795031443107.jsonl,1795031443108,True,MEDIUM,bash,501.0,TP
+newfile,newfile,/data/datasets/backdoor_trigger_1795031445343.jsonl,1795031445344,True,MEDIUM,bash,500.9,TP
+newfile,newfile,/data/datasets/backdoor_trigger_1795031447519.jsonl,1795031447520,True,MEDIUM,bash,500.8,TP
+newfile,newfile,/data/datasets/backdoor_trigger_1795031449684.jsonl,1795031449685,True,MEDIUM,bash,501.4,TP
+newfile,newfile,/data/datasets/backdoor_trigger_1795031451899.jsonl,1795031451900,True,MEDIUM,bash,501.4,TP
+newfile,newfile,/data/datasets/backdoor_trigger_1795031454075.jsonl,1795031454076,True,MEDIUM,bash,501.5,TP
+newfile,newfile,/data/datasets/backdoor_trigger_1795031456295.jsonl,1795031456296,True,MEDIUM,bash,501.8,TP

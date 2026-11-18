@@ -24,23 +24,24 @@ Status: ✅ implemented and tested · 🟡 partly implemented · ⏳ planned
 | FR-13 | One JSON line per detection with old/new hash | ✅ | `internal/logger` |
 | FR-14 | Severity levels and mapping | ✅ | `internal/decision` |
 | FR-15 | CRITICAL/HIGH to stdout (docker logs) | 🟡 | stdout done; syslog planned |
-| FR-16 | Webhook for CRITICAL alerts | ⏳ | optional |
+| FR-16 | Webhook for CRITICAL alerts | ✅ | `internal/notify`, `FIM_WEBHOOK_URL` (Slack/Discord format) |
 | FR-17 | Start/stop/scan summaries | ✅ | `summary` records |
 | FR-18 | CLI report by time range, CSV/JSON export | ✅ | `fimagent report` |
 | FR-19 | Quarantine and restore | ⏳ | optional |
-| FR-20 | Latency (p50/p95) and TP/FP/FN script | ⏳ | `latency_ms` already logged |
+| FR-20 | Latency (p50/p95) and TP/FP/FN script | ✅ | `simulations/run_experiment.sh` + `measure.py`; results in `results/week7` |
 
 ## Non-functional
 
 | ID | Requirement | Status | Notes |
 |---|---|---|---|
-| NFR-01/02 | Event-to-record ≤ 200 ms, with hash ≤ 1 s (p95) | 🟡 | ~50–55 ms + debounce in unit tests; lab measurement pending |
-| NFR-03 | SHA-256 ≥ 300 MB/s | 🟡 | `go test -bench . ./internal/hasher/`; lab measurement pending |
+| NFR-01/02 | Event-to-record ≤ 200 ms, with hash ≤ 1 s (p95) | 🟡 | lab: ≤ 0.53 s p95 for files < 100 MB (NFR-02 met); no early pre-hash record yet (NFR-01) |
+| NFR-03 | SHA-256 ≥ 300 MB/s | ✅ | lab baseline 1.8 GiB in 1.89 s (≈ 970 MB/s) |
 | NFR-10 | Restart after crash, cover downtime with full scan | ✅ | `restart: unless-stopped`, startup scan, `monitoring_gap` |
 | NFR-12 | Single command lab | ✅ | `docker compose up` |
 | NFR-13 | Modular code and unit tests | ✅ | 9 packages, tests in CI |
 | NFR-14 | JSON Lines with a documented schema | ✅ | `docs/log_schema.md` |
-| NFR-11 | Log rotation | ⏳ | |
+| NFR-11 | Log rotation | ✅ | `log_max_mb` / `log_keep` (default 5 × 100 MB), chain continues across files |
+| NFR-08 | Idle CPU ≤ 2 %, memory ≤ 150 MB | ✅ | lab: 0.03 % CPU, 34 MB RSS |
 
 ## Security
 
@@ -72,6 +73,6 @@ Status: ✅ implemented and tested · 🟡 partly implemented · ⏳ planned
 | T-10 | Agent stopped, file changed, agent restarted | ✅ `monitoring_gap` + startup scan |
 | T-11 | Baseline file modified | ✅ CRITICAL, agent refuses forged baseline |
 | T-12 | Model update in maintenance mode | ✅ no alerts, baseline renewed |
-| T-13 | 1,000 concurrent writes | ⏳ overflow → full scan is implemented, load test pending |
+| T-13 | 1,000 concurrent writes | ⏳ overflow → full scan is implemented; `attacks.sh storm` ready, load test pending |
 | T-14 | 24 h normal workload, FP ≤ 1 % | ⏳ |
 | T-15 | Alert log line deleted/modified | ✅ chain break detected |

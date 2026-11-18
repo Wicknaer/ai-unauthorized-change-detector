@@ -53,6 +53,7 @@ volume:
 | Limit | Effect | Mitigation |
 |---|---|---|
 | Short-lived writers can exit before `/proc` is read | Only the PID is known, `comm` is empty | Such a write is never whitelisted, so it still alerts |
-| SQLite WAL: ChromaDB may checkpoint an attacker's WAL frames into the main file | The final write to `chroma.sqlite3` is ChromaDB's | Measured in the lab (week 7); see the report |
+| SQLite WAL: ChromaDB may checkpoint an attacker's WAL frames into the main file | The final write to `chroma.sqlite3` would be ChromaDB's | Not observed in the week 7 lab: all 10 `sqlite3` writes were attributed to `sqlite3` |
+| A whitelisted write after an attack is accepted with the attacker's earlier content | The attack was already alerted, but the injected rows become part of the accepted state | Investigate alerts before ChromaDB's next write; renew the baseline only after cleanup |
 | Requires `CAP_SYS_ADMIN` | Without it attribution is disabled | Logged as `attribution_unavailable`; detection still works, nothing is whitelisted |
 | fanotify is Linux only | No attribution on Windows/macOS | Development only; the lab runs on Linux |

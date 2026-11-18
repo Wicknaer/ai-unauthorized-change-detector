@@ -175,7 +175,12 @@ Process attribution with **fanotify** (PID, command, executable, user) identifie
 every change, so the ChromaDB server's own writes are INFO while a direct `sqlite3` write is
 HIGH ([design](docs/design/process_attribution.md)).
 
-Next: latency/accuracy measurement in the lab (p50/p95, TP/FP/FN); webhook alerts; log rotation.
+First lab experiment (10 repetitions per scenario): **100/100 attacks detected in real time, 0 false
+alarms on legitimate ChromaDB writes**, p95 ≤ 0.53 s for files under 100 MB, 34 MB memory
+([results](results/week7/README.md)). Critical alerts can be sent to a Slack/Discord webhook
+(`FIM_WEBHOOK_URL`) and the log rotates at 5 × 100 MB.
+
+Next: the full 30-repetition run, mmap (T-09), event storm (T-13) and a 24-hour false-alarm run (T-14).
 
 Requirement-by-requirement progress: [docs/requirements_status.md](docs/requirements_status.md).
 
