@@ -26,6 +26,16 @@ jobs:
         run: go tool cover -func=coverage.out | tail -n 1
       - run: go build -o fimagent ./cmd/fimagent
 
+  fanotify:
+    # fanotify needs CAP_SYS_ADMIN, so these tests run as root in a container.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: process attribution tests
+        run: >
+          docker run --rm --cap-add SYS_ADMIN -v "$PWD":/src -w /src/agent golang:1.22-bookworm
+          go test -count=1 -v -run 'Fanotify|ReadProc' ./internal/attribution/ ./internal/agent/
+
   demo:
     runs-on: ubuntu-24.04
     steps:

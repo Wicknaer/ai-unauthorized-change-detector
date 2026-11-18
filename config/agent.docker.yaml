@@ -33,8 +33,10 @@ exclude:
   - "*.lock"
   - "*.tmp"
 
-# Processes allowed to write. Matching needs process attribution (FR-10, fanotify),
-# which is the next milestone; until then these entries are parsed and validated only.
+# Processes allowed to write (FR-11). The writer is identified with fanotify (FR-10): the
+# agent needs CAP_SYS_ADMIN and the host PID namespace (see docker-compose.yml). A write by a
+# whitelisted process inside its paths is logged as INFO and accepted; anything else alerts.
+# "comm" is the kernel's command name (/proc/<pid>/comm); "exe" and "user" can narrow it down.
 whitelist:
   - name: chromadb-server
     comm: chroma

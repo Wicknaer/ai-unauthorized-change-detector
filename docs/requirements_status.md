@@ -13,13 +13,13 @@ Status: ✅ implemented and tested · 🟡 partly implemented · ⏳ planned
 | FR-02 | Baseline with SHA-256, size, mode, owner, mtime | ✅ | `internal/baseline` |
 | FR-03 | Baseline renewed only via CLI, with who/when logged | ✅ | `fimagent rebaseline`, `maintenance off` |
 | FR-04 | Chunked hashing, memory independent of file size | ✅ | `internal/hasher` |
-| FR-05 | Write/create/delete/rename/chmod events | 🟡 | `internal/watcher` (inotify via fsnotify; fanotify planned) |
+| FR-05 | Write/create/delete/rename/chmod events | ✅ | `internal/watcher` (inotify via fsnotify) + `internal/attribution` (fanotify writes) |
 | FR-06 | New subdirectories added automatically | ✅ | `internal/watcher` |
 | FR-07 | Rehash and compare when a written file settles | ✅ | `internal/scanner`, `internal/agent` |
 | FR-08 | Periodic full rescan (default 5 min) | ✅ | `internal/agent` |
 | FR-09 | Coalesce events on one file (default 500 ms) | ✅ | `internal/watcher` |
-| FR-10 | Identify the writing process (PID, user, exe) | ⏳ | needs fanotify; field already in the log schema |
-| FR-11 | Whitelisted processes produce INFO | 🟡 | decision logic done and tested; waits for FR-10 |
+| FR-10 | Identify the writing process (PID, user, exe) | ✅ | `internal/attribution`: fanotify filesystem mark, `/proc` lookup; see `docs/design/process_attribution.md` |
+| FR-11 | Whitelisted processes produce INFO | ✅ | INFO + signed `accepted.json` overlay so scans do not re-alert |
 | FR-12 | Maintenance mode, baseline renewed on exit | ✅ | `fimagent maintenance on/off` |
 | FR-13 | One JSON line per detection with old/new hash | ✅ | `internal/logger` |
 | FR-14 | Severity levels and mapping | ✅ | `internal/decision` |
@@ -62,13 +62,13 @@ Status: ✅ implemented and tested · 🟡 partly implemented · ⏳ planned
 |---|---|---|
 | T-01 | One byte changed in a model file | ✅ CRITICAL |
 | T-02 | Poisoned row appended to the dataset | ✅ HIGH |
-| T-03 | Direct `sqlite3` insert into ChromaDB | 🟡 detected as HIGH; process name needs FR-10 |
-| T-04 | Legitimate ChromaDB API write → INFO only | ⏳ needs FR-10 |
+| T-03 | Direct `sqlite3` insert into ChromaDB | ✅ HIGH, writer `sqlite3` in the log |
+| T-04 | Legitimate ChromaDB API write → INFO only | ✅ INFO, writer `chroma` |
 | T-05 | Atomic replace with `mv` | ✅ CRITICAL |
 | T-06 | Monitored file deleted | ✅ |
 | T-07 | `chmod 777` | ✅ MEDIUM (Linux) |
 | T-08 | Content changed, mtime restored | ✅ detected by hash |
-| T-09 | mmap write | 🟡 caught by periodic scan; lab test pending |
+| T-09 | mmap write | 🟡 caught by periodic scan and not credited to an earlier whitelisted write; lab test pending |
 | T-10 | Agent stopped, file changed, agent restarted | ✅ `monitoring_gap` + startup scan |
 | T-11 | Baseline file modified | ✅ CRITICAL, agent refuses forged baseline |
 | T-12 | Model update in maintenance mode | ✅ no alerts, baseline renewed |

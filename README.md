@@ -23,8 +23,8 @@ the vector store. The agent does not block writes; it makes sure none of them go
 | Vector database (ChromaDB) | `chroma.sqlite3`, HNSW index files | HIGH |
 | Training / fine-tuning data | `.csv`, `.jsonl`, `.parquet` | HIGH |
 
-Permission/ownership changes and new files are MEDIUM. Changes during maintenance mode (and,
-once process attribution lands, by whitelisted processes) are logged as INFO.
+Permission/ownership changes and new files are MEDIUM. Changes during maintenance mode and
+changes by whitelisted processes (identified with fanotify) are logged as INFO.
 
 ## How it works
 
@@ -171,9 +171,11 @@ watcher with debounce and new-directory handling, periodic scan, decision engine
 severities and maintenance mode, hash-chained JSON Lines log, reporting/CSV export, heartbeat
 and monitoring-gap detection.
 
-Next: process attribution with **fanotify** (PID, user, executable) so whitelisted writers such
-as the ChromaDB server produce INFO instead of alerts; latency/accuracy measurement script
-(p50/p95, TP/FP/FN); webhook alerts; log rotation.
+Process attribution with **fanotify** (PID, command, executable, user) identifies the writer of
+every change, so the ChromaDB server's own writes are INFO while a direct `sqlite3` write is
+HIGH ([design](docs/design/process_attribution.md)).
+
+Next: latency/accuracy measurement in the lab (p50/p95, TP/FP/FN); webhook alerts; log rotation.
 
 Requirement-by-requirement progress: [docs/requirements_status.md](docs/requirements_status.md).
 
