@@ -358,3 +358,17 @@ func TestMonitoringGap(t *testing.T) {
 		t.Fatalf("got %+v", recs)
 	}
 }
+
+// rebaseline does what 'fimagent rebaseline' does: a new signed baseline, accepted changes dropped.
+func (l *lab) rebaseline(t *testing.T) {
+	t.Helper()
+	st := state.Dir(l.cfg.Agent.StateDir)
+	b, err := baseline.Build(l.cfg, hasher.New(0), "admin", "test renewal")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := b.Save(st.BaselinePath(), l.key); err != nil {
+		t.Fatal(err)
+	}
+	os.Remove(st.AcceptedPath())
+}

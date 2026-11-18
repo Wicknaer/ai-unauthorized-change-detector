@@ -139,6 +139,10 @@ func (c *common) renew(key []byte, by, reason, event string) (*baseline.Baseline
 	if err := b.Save(c.st.BaselinePath(), key); err != nil {
 		return nil, err
 	}
+	// Changes accepted from whitelisted processes are now part of the baseline itself.
+	if err := os.Remove(c.st.AcceptedPath()); err != nil && !errors.Is(err, os.ErrNotExist) {
+		return nil, err
+	}
 	err = c.log.Write(logger.Record{Type: logger.TypeBaseline, Event: event, Path: c.st.BaselinePath(), Actor: by, Message: reason,
 		Fields: map[string]any{"files": len(b.Entries), "bytes": b.TotalSize()}})
 	return b, err
@@ -431,6 +435,11 @@ func cmdStatus(args []string) error {
 		}
 		fmt.Printf("baseline:    signature OK, %d files (%s), %s, created %s by %s\n", len(b.Entries), strings.Join(parts, " "),
 			humanBytes(b.TotalSize()), b.CreatedAt.Local().Format(time.RFC3339), b.CreatedBy)
+		if n, err := agent.AcceptedCount(c.st, key, b); err != nil {
+			fmt.Println("accepted:    INVALID -", err)
+		} else {
+			fmt.Printf("accepted:    %d change(s) by whitelisted processes since the baseline\n", n)
+		}
 	}
 	if m, err := c.st.Maintenance(); err == nil && m.Enabled {
 		fmt.Printf("maintenance: ON since %s by %s\n", m.Since.Local().Format(time.RFC3339), m.By)

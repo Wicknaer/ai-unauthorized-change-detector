@@ -18,6 +18,7 @@ import (
 const (
 	keyFile         = "hmac.key"
 	baselineFile    = "baseline.json"
+	acceptedFile    = "accepted.json"
 	maintenanceFile = "maintenance.json"
 	heartbeatFile   = "heartbeat.json"
 
@@ -139,3 +140,6 @@ func (d Dir) writeJSON(name string, v any) error {
 	}
 	return os.Rename(tmp, path)
 }
+
+// AcceptedPath is the agent-maintained overlay of changes made by whitelisted processes.
+func (d Dir) AcceptedPath() string { return filepath.Join(string(d), acceptedFile) }
